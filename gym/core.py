@@ -119,6 +119,7 @@ class Env(Generic[ObsType, ActType]):
         *,
         seed: Optional[int] = None,
         options: Optional[dict] = None,
+        new_state: Optional[Tuple[float, float, float, float]] = None
     ) -> Tuple[ObsType, dict]:
         """Resets the environment to an initial state and returns the initial observation.
 
