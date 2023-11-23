@@ -9,15 +9,32 @@ from gym import Env, logger, spaces, utils
 from gym.envs.toy_text.utils import categorical_sample
 from gym.error import DependencyNotInstalled
 
+# MAP = [
+#     "+---------+",
+#     "|R: | : :G|",
+#     "| : | : : |",
+#     "| : : : : |",
+#     "| | : | : |",
+#     "|Y| : |B: |",
+#     "+---------+",
+# ]
+
 MAP = [
-    "+---------+",
-    "|R: | : :G|",
-    "| : | : : |",
-    "| : : : : |",
-    "| | : | : |",
-    "|Y| : |B: |",
-    "+---------+",
+    "+-------------------+",
+    "|R: | : : | : | : : |",
+    "| : | : : : : | : : |",
+    "| : : : : | : | : : |",
+    "| | : | : |G| | : : |",
+    "| : : | : : : : : | |",
+    "| | : : : | : | : | |",
+    "| : | : : | : | : | |",
+    "| | : | : | : | : |B|",
+    "| :Y| | : : : | : : |",
+    "| : | : : | : | : : |",
+    "+-------------------+",
 ]
+
+
 WINDOW_SIZE = (550, 350)
 
 
@@ -128,12 +145,15 @@ class TaxiEnv(Env):
     def __init__(self, render_mode: Optional[str] = None):
         self.desc = np.asarray(MAP, dtype="c")
 
-        self.locs = locs = [(0, 0), (0, 4), (4, 0), (4, 3)]
-        self.locs_colors = [(255, 0, 0), (0, 255, 0), (255, 255, 0), (0, 0, 255)]
+        # self.locs = locs = [(0, 0), (0, 4), (4, 0), (4, 3)]
+        # self.locs_colors = [(255, 0, 0), (0, 255, 0), (255, 255, 0), (0, 0, 255)]
+        
+        self.locs = locs = [(0, 0), (8, 1), (7, 9), (3, 5)]
+        self.locs_colors = [(255, 0, 0), (255, 255, 0), (0, 0, 255), (0, 255, 0), ]
 
-        num_states = 500
-        num_rows = 5
-        num_columns = 5
+        num_states = 2000
+        num_rows = 10
+        num_columns = 10
         max_row = num_rows - 1
         max_col = num_columns - 1
         self.initial_state_distrib = np.zeros(num_states)
@@ -184,7 +204,7 @@ class TaxiEnv(Env):
                                 new_row, new_col, new_pass_idx, dest_idx
                             )
                             self.P[state][action].append(
-                                (1.0, new_state, reward, terminated)
+                                (.7, new_state, reward, terminated)
                             )
         self.initial_state_distrib /= self.initial_state_distrib.sum()
         self.action_space = spaces.Discrete(num_actions)
@@ -210,7 +230,7 @@ class TaxiEnv(Env):
     def encode(self, taxi_row, taxi_col, pass_loc, dest_idx):
         # (5) 5, 5, 4
         i = taxi_row
-        i *= 5
+        i *= 10
         i += taxi_col
         i *= 5
         i += pass_loc
@@ -224,10 +244,10 @@ class TaxiEnv(Env):
         i = i // 4
         out.append(i % 5)
         i = i // 5
-        out.append(i % 5)
-        i = i // 5
+        out.append(i % 10)
+        i = i // 10
         out.append(i)
-        assert 0 <= i < 5
+        assert 0 <= i < 10
         return reversed(out)
 
     def action_mask(self, state: int):
@@ -257,7 +277,10 @@ class TaxiEnv(Env):
         p, s, r, t = transitions[i]
         self.s = s
         self.lastaction = a
-
+        
+        if r == -10:
+            print('ILLLEEGGALLLL================================================================ :(')
+                
         if self.render_mode == "human":
             self.render()
         return (int(s), r, t, False, {"prob": p, "action_mask": self.action_mask(s)})
