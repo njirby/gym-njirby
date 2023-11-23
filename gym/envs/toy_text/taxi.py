@@ -277,9 +277,6 @@ class TaxiEnv(Env):
         p, s, r, t = transitions[i]
         self.s = s
         self.lastaction = a
-        
-        if r == -10:
-            print('ILLLEEGGALLLL================================================================ :(')
                 
         if self.render_mode == "human":
             self.render()
